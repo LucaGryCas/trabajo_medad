@@ -58,6 +58,7 @@ H
 # Matriz B = HAH
 B <- H %*% A %*% H; B
 
+  # 7: Coordenadas de los puntos obtenidos
 lambda <- eigen(B)$values # autovalores de B
 autovec <- eigen(B)$vectors #autovectores de B
 
