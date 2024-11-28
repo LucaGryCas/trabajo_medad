@@ -58,10 +58,16 @@ H
 # Matriz B = HAH
 B <- H %*% A %*% H; B
 
-  # 7: Coordenadas de los puntos obtenidos
 lambda <- eigen(B)$values # autovalores de B
 autovec <- eigen(B)$vectors #autovectores de B
 
+  ## 6: Dimensión a considerar
+# Tomando como referencia los autovalores de la matrix B, se puede apreciar que 
+# los 2 primeros autovalores de B son considerablemente mayores que los demás
+# (el primero es del orden de 10^8, el segundo de 10^3 y el tercero de 10^2),
+# entonces tiene sentido decir que los más significativos son los dos primeros.
+
+  # 7: Coordenadas de los puntos obtenidos
 vec12 <- autovec[,1:2]
 lambda_12 <- diag(lambda[1:2])
 
@@ -73,6 +79,17 @@ d.names <- row.names(Spain)
 plot(result, pch=19, main="Resultado del MDS clásico", xlab="x",ylab="y",
      xlim=c(-10000,10000),ylim=c(-80,50))
 text(result-c(5,7), labels=d.names,cex=0.9, font=2)
+
+## 9: rotación y simetría
+# En este caso se podrian realizar ambos metodo con el objetivo de tener un mejor
+# analisis visual de la representación.
+
+result.rot <- cbind(-result[,2],-result[,1])
+
+plot(result.rot, pch=19, main="Resultado del MDS clásico tras una rotación", 
+     xlab="x",ylab="y",xlim=c(-50,90))
+text(result.rot-c(5,7), labels=d.names,cex=0.65, font=2)
+
 
   ## 11: MDS con variables
 # dist.var <- as.matrix(cor(Spain))
