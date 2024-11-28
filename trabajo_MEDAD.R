@@ -90,4 +90,4 @@ y <- fit$points[,2]
 # Representación grafica
 plot(x,y, pch=19, main="Resultado del MDS sobre las Variables", xlab="x",ylab="y",
      xlim=c(-0.5,0.5),ylim=c(-0.5,0.5))
-text(result-c(0.1,0.1), labels=d.names, font=2)
+text(x-0,y-0.035), labels=d.names, font=2)
