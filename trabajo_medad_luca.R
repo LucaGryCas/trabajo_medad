@@ -1,12 +1,9 @@
-#parte álvaro
-load("C:/Users/USUARIO/clase/2º/1ªQ/MEDAD/trabajo MEDAD/Spain.RData")
-
 #cargamos los datos
 load("C:/Users/lucag/Downloads/Spain.RData")
 datos <- Spain
 attach(datos)
 ####
-#1
+#1) Ejercicio
 ####
 
 ####
@@ -48,13 +45,9 @@ d.mahalanobis <- mahalanobis.dist(datos) #también puede ser lógico utilizar la
 #proporción de inmigrantes por 10.000 personas tendría menos relevancia
 #y si fuera entre 100 más, ya que esa variable tendría mayor valor numérico
 
-######
-#5
-######
-
 
 ########
-#6/7/8/9/10
+#5/6/7/8/9/10
 ########
 
 # MDS en R (manual)
@@ -99,6 +92,7 @@ lab <- row.names(datos)
 datos.scale <- scale(datos,center=TRUE,scale=TRUE)
 #d <- as.matrix(dist(datos)) #ejercicio con los datos sin escalar
 d <- as.matrix(dist(datos.scale))
+
 fit <- cmdscale(d, eig=TRUE, k=2) # k es el número de dimensiones
 fit 
 x <- fit$points[,1]
@@ -108,6 +102,28 @@ y <- fit$points[,2]
 plot(x, y, xlab="Coordenada 1", ylab="Coordenada 2",
      main="Resultado del MDS clásico", pch=19, xlim=c(-3,3),ylim=c(-3,3))
 text(x, y-0.035, labels = lab, cex=0.7, font=2)  
+
+######
+#11
+######
+
+# dist.var <- as.matrix(cor(Spain))
+dist.var <- as.matrix(prcomp(scale(Spain, center = TRUE, scale = TRUE))$rotation)
+
+d.names <- colnames(Spain)
+
+n <- dim(dist.var)[1]
+
+fit <- cmdscale(dist.var, eig = TRUE, k = 2); fit
+
+x <- fit$points[,1]
+y <- fit$points[,2]
+
+# Representación grafica
+plot(x,y, pch=19, main="Resultado del MDS sobre las Variables", xlab="x",ylab="y",
+     xlim=c(-0.5,0.5),ylim=c(-0.5,0.5))
+text(x+0.06,y-0.035, labels=d.names, font=2)
+
 
 
 
