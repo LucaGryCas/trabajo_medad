@@ -1,8 +1,9 @@
 ---
 title: "Trabajo MEDAD"
-author: "Álvaro López Pérez  Luca Grygar Casas"
+author: "Álvaro López Pérez y Luca Grygar Casas"
 output: pdf_document
 ---
+
 
 # Cargamos los datos
 
@@ -24,10 +25,9 @@ head(datos)
 str(datos) 
 ```
 
-Tenemos un conjunto de datos numéricos que evalúa distintas características #de las comunidades autónomas españolas.
+Tenemos un conjunto de datos numéricos que evalúa distintas características de las comunidades autónomas españolas.
 
-Podemos ver que hay una diferencia enorme entre comunidades:
-
+Podemos ver que hay una diferencia enorme entre comunidades.
 Vamos a considerar el PIB como la mejor medida para comparar la riqueza entre comunidades.
 
 Rango del PIB:
@@ -43,14 +43,14 @@ library(dplyr)
 ord <- datos %>% arrange(desc(pib))
 ```
 
-Este sería el top 5:
+### Este sería el top 5:
 
 ```{r}
 h.datos <- head(ord,n=5)
 h.datos
 ```
 
-Este sería el top 5 colista:
+### Este sería el top 5 colista:
 
 ```{r}
 t.datos <- tail(ord,n=5)
@@ -73,7 +73,7 @@ A ojo podemos ver como hay diferencias considerables entre las diferentes propor
 
 
 
-### Estudio de las correlaciones
+## Estudio de las correlaciones
 
 ```{r}
 datos.cor <- cor(datos)
@@ -90,7 +90,7 @@ library(psych)
 pairs.panels(datos, smooth = TRUE, density=TRUE, digits = 2, ellipses=TRUE, method="pearson", pch = 20,         lm=TRUE, cor=TRUE)
 ```
 
-## 2/3/4
+# 2/3/4
 
 ### Nosotros para resolver el problema utilizaremos la distancia euclídea
 
@@ -122,17 +122,17 @@ Si utilizaramos los datos sin escalar, las distancias dependerían de las unidad
 
 # 5/6/7/8/9/10
 
-## MDS en R (manual)
+# MDS en R (manual)
 
-### Matriz A:
+## Matriz A:
 
 ```{r}
 library(philentropy) 
 
 dist.dat <- as.matrix(dist(datos.scale))
 n <- dim(dist.dat)[1]
-A <- (-1/2)*dist.dat^2 # Matriz A
-A
+A <- (-1/2)*dist.dat^2 
+cat("Matriz A: \n"); A
 ```
 
 ## Matriz de centrado
@@ -140,51 +140,56 @@ A
 ```{r}
 H <- as.matrix(diag(rep((n-1)/n,length.out=n))) # En la diagonal 6/7 
 H[which(H==0)] <- -1/n # En las otras posiciones, -1/7 
-H
+cat("Matriz de centrado H: \n"); H
 ```
 
 ## Matriz B = HAH
 
 ```{r}
-B <- H %*% A %*% H; B
-(lambda <- eigen(B)$values) # autovalores de B 
-(autovec <- eigen(B)$vectors) #autovectores de B
+cat("Matriz B: \n")
+(B <- H %*% A %*% H)
+cat("\n Autovalores de B: \n")
+(lambda <- eigen(B)$values) 
+cat("\n Autovectores de B: \n")
+(autovec <- eigen(B)$vectors) 
 vec12 <- autovec[,1:2] 
 lambda_12 <- diag(lambda[1:2])
-result <- vec12 %*% sqrt(lambda_12); result
+cat("\n Puntos elegidos: \n")
+(result <- vec12 %*% sqrt(lambda_12))
 d.names <- row.names(Spain)
 ```
 
+### Representación Gráfica
 ```{r}
-par(mfrow = c(1,2))
-plot(x,y, pch=19, main="MDS datos escalados, sin función de R ", xlab="x",ylab="y", xlim=c(-3,3),ylim=c(-4,3))
-text(x,y-0.35, labels=d.names,cex=0.5, font=2)
+plot(result, pch=19, main="MDS datos escalados, sin función de R ", xlab="x",ylab="y", xlim=c(-3,3),ylim=c(-4,3))
+text(result-c(0, 0.35), labels=d.names,cex=0.5, font=2)
 ```
 No vemos que sea necesario realizar ninguna rotación.
 
-## MDS función R
+# MDS función R
 
 Podemos separar los datos en dos tipos, demografía y economía de la comunidad por lo tanto tendría sentido representar las distancias en dos dimensiones.
 
-### datos escalados
+## Datos escalados
 En este caso en vez de todo el proceso anterior usaremos la función cmdscale para realizar el proceso.
 
 ```{r}
 datos.scale <- scale(datos,center=TRUE,scale=TRUE) 
 d <- as.matrix(dist(datos.scale))
+cat("Puntos elegido:; \n")
 (fit <- cmdscale(d, eig=TRUE, k=2))$points 
 # k es el número de dimensiones 
 ```
-
 Representamos el nuevo MDS:
 
+### Representación Gráfica
 ```{r}
 x <- fit$points[,1]; y <- fit$points[,2]
 plot(x,y, pch=19, main="MDS datos escalados, con función R ", xlab="x",ylab="y", xlim=c(-3,3),ylim=c(-4,3))
 text(x,y-0.35, labels=d.names,cex=0.5, font=2)
 ```
 
-### datos sin escalar
+## Datos sin escalar
 
 Creamos la matriz de ditancia con los datos sin escalar, compararemos los resultados en parte para sobreexplicar la pregunta lanzada en anteriores ejercicios. ¿Cómo afectan las unidades de las variables a las distancias? Lo veremos con el MDS.
 
@@ -195,16 +200,18 @@ d <- as.matrix(dist(datos))
 Usamos la función de R para representar los datos
 ```{r}
 lab <- row.names(datos)
+cat("Puntos elegidos: \n")
 (fit <- cmdscale(d, eig=TRUE, k=2))$points # k es el número de dimensiones 
 x <- fit$points[,1]; y <- fit$points[,2]
 x.max <- max(x); x.min <- min(x)
 y.max <- max(y); y.min <- min(y)
 ```
+### Representación Gráfica
 
 Creamos el gráfico reescalándolo basándonos en los máximos y mínimos de las coordenadas y ajustándolos a ojo.
 ```{r}
 plot(x, y, xlab="Coordenada 1", ylab="Coordenada 2", main="MDS con las variables sin escalar", pch=19,     xlim=c(x.min-400,x.max+400),ylim=c(y.min-10,y.max+10)) 
-text(x, y-0.45, labels = d.names, cex=0.7, font=2)
+text(x, y-0.5, labels = d.names, cex=0.6, font=2)
 ```
 Podemos percibir como este mds, "le hace más caso" a la variable del PIB que en este caso es la que más valor tiene al no ser una proporción como las demás.
 
@@ -214,13 +221,10 @@ Podemos percibir como este mds, "le hace más caso" a la variable del PIB que en
 
 ```{r}
 dist.var <- as.matrix(prcomp(scale(Spain, center = TRUE, scale = TRUE))$rotation)
-
 v.names <- colnames(Spain)
-
 n <- dim(dist.var)[1]
-
+cat("Puntos elegidos: \n")
 fit <- cmdscale(dist.var, eig = TRUE, k = 2); fit$points
-
 x <- fit$points[,1]; y <- fit$points[,2]
 ```
 
@@ -233,6 +237,4 @@ text(x,y-0.04, labels=v.names,cex = 0.7, font=2)
 
 # Conclusión
 
-El método de reducción de la dimensión que hemos aplicado nos ha resultado útil para ver qué comunidades son más similares en cuánto a las variables ofrecidas. Además hemos podido ver que las más potentes económicamente, como descubrimos en el estudio previo, quedaban cerca en el "mapa".
-
-
+El método de reducción de la dimensión que hemos aplicado nos ha resultado útil para ver qué comunidades son más similares en cuánto a las variables ofrecidas. Además hemos podido ver que las más potentes económicamente, como descubrimos en el estudio previo, quedaban cerca en el **"mapa"**.
