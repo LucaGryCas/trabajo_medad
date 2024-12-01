@@ -1,0 +1,238 @@
+---
+title: "Trabajo MEDAD"
+author: "Álvaro López Pérez  Luca Grygar Casas"
+output: pdf_document
+---
+
+# Cargamos los datos
+
+```{r}
+load("Spain.RData") 
+datos <- Spain 
+attach(datos) 
+```
+
+# 1) Ejercicio
+
+## Estudio univariante y multivariante
+
+```{r}
+head(datos) 
+```
+
+```{r}
+str(datos) 
+```
+
+Tenemos un conjunto de datos numéricos que evalúa distintas características #de las comunidades autónomas españolas.
+
+Podemos ver que hay una diferencia enorme entre comunidades:
+
+Vamos a considerar el PIB como la mejor medida para comparar la riqueza entre comunidades.
+
+Rango del PIB:
+
+```{r}
+cat("PIB: ",range(pib), "\n")
+```
+
+Ordenamos las comunidades por PIB:
+
+```{r}
+library(dplyr)
+ord <- datos %>% arrange(desc(pib))
+```
+
+Este sería el top 5:
+
+```{r}
+h.datos <- head(ord,n=5)
+h.datos
+```
+
+Este sería el top 5 colista:
+
+```{r}
+t.datos <- tail(ord,n=5)
+t.datos
+```
+
+Intentemos ahora comparar intuitivamente como afectan las demás
+variables a la riqueza de la comunidad autónoma.
+
+```{r}
+h.mean <- colMeans(h.datos)[c(-6,-7)]
+t.mean <- colMeans(t.datos)[c(-6,-7)]
+
+h.mean
+t.mean
+```
+
+A ojo podemos ver como hay diferencias considerables entre las diferentes proporciones. La tasa de inmigración y emigración es menor en las comunidades con mayor pib, además de la tasa de empleo, por ejemplo.
+
+
+
+
+### Estudio de las correlaciones
+
+```{r}
+datos.cor <- cor(datos)
+cat("Correlaciones a destacar: ","\n")
+cat("Emigración/Inmigración: ",datos.cor[2,1],"\n")
+cat("Paro/empleo: ", datos.cor[5,2], "\n")
+cat("IPC/PIB: ", datos.cor[7,6], "\n")
+```
+
+Algunas correlaciones a destacar pueden ser, la relación entre el ipc y el pib, cuánto mayor sea una menor es la otra , entre el paro y el empleo es negativa igual que en las variables emigración e inmigración. En la siguiente gráfica podemos ver como todas están representadas a través de gráficas con nubes de puntos, además de boxplots en la diagonal que nos ayudan a ver como se distribuyen las variables.
+
+```{r}
+library(psych) 
+pairs.panels(datos, smooth = TRUE, density=TRUE, digits = 2, ellipses=TRUE, method="pearson", pch = 20,         lm=TRUE, cor=TRUE)
+```
+
+## 2/3/4
+
+### Nosotros para resolver el problema utilizaremos la distancia euclídea
+
+```{r}
+datos.scale <- scale(datos,center=TRUE,scale=TRUE) 
+```
+
+#### datos escalados (pib con un rango enorme)
+
+```{r}
+d.scale<- dist(datos.scale) 
+```
+
+#### datos sin escalar
+
+```{r}
+ d<- dist(datos)
+```
+
+#### distancia de mahalanobis:
+
+```{r}
+library(StatMatch) 
+d.mahalanobis <- mahalanobis.dist(datos)
+```
+
+Si utilizaramos los datos sin escalar, las distancias dependerían de las unidades ,por ejemplo, si nos diese por medir la tasa de inmigración por proporción de inmigrantes por 10.000 personas tendría menos relevancia y si fuera entre 100 más, ya que esa variable tendría mayor valor numérico
+
+
+# 5/6/7/8/9/10
+
+## MDS en R (manual)
+
+### Matriz A:
+
+```{r}
+library(philentropy) 
+
+dist.dat <- as.matrix(dist(datos.scale))
+n <- dim(dist.dat)[1]
+A <- (-1/2)*dist.dat^2 # Matriz A
+A
+```
+
+## Matriz de centrado
+
+```{r}
+H <- as.matrix(diag(rep((n-1)/n,length.out=n))) # En la diagonal 6/7 
+H[which(H==0)] <- -1/n # En las otras posiciones, -1/7 
+H
+```
+
+## Matriz B = HAH
+
+```{r}
+B <- H %*% A %*% H; B
+(lambda <- eigen(B)$values) # autovalores de B 
+(autovec <- eigen(B)$vectors) #autovectores de B
+vec12 <- autovec[,1:2] 
+lambda_12 <- diag(lambda[1:2])
+result <- vec12 %*% sqrt(lambda_12); result
+d.names <- row.names(Spain)
+```
+
+```{r}
+par(mfrow = c(1,2))
+plot(x,y, pch=19, main="MDS datos escalados, sin función de R ", xlab="x",ylab="y", xlim=c(-3,3),ylim=c(-4,3))
+text(x,y-0.35, labels=d.names,cex=0.5, font=2)
+```
+No vemos que sea necesario realizar ninguna rotación.
+
+## MDS función R
+
+Podemos separar los datos en dos tipos, demografía y economía de la comunidad por lo tanto tendría sentido representar las distancias en dos dimensiones.
+
+### datos escalados
+En este caso en vez de todo el proceso anterior usaremos la función cmdscale para realizar el proceso.
+
+```{r}
+datos.scale <- scale(datos,center=TRUE,scale=TRUE) 
+d <- as.matrix(dist(datos.scale))
+(fit <- cmdscale(d, eig=TRUE, k=2))$points 
+# k es el número de dimensiones 
+```
+
+Representamos el nuevo MDS:
+
+```{r}
+x <- fit$points[,1]; y <- fit$points[,2]
+plot(x,y, pch=19, main="MDS datos escalados, con función R ", xlab="x",ylab="y", xlim=c(-3,3),ylim=c(-4,3))
+text(x,y-0.35, labels=d.names,cex=0.5, font=2)
+```
+
+### datos sin escalar
+
+Creamos la matriz de ditancia con los datos sin escalar, compararemos los resultados en parte para sobreexplicar la pregunta lanzada en anteriores ejercicios. ¿Cómo afectan las unidades de las variables a las distancias? Lo veremos con el MDS.
+
+```{r}
+d <- as.matrix(dist(datos))
+```
+
+Usamos la función de R para representar los datos
+```{r}
+lab <- row.names(datos)
+(fit <- cmdscale(d, eig=TRUE, k=2))$points # k es el número de dimensiones 
+x <- fit$points[,1]; y <- fit$points[,2]
+x.max <- max(x); x.min <- min(x)
+y.max <- max(y); y.min <- min(y)
+```
+
+Creamos el gráfico reescalándolo basándonos en los máximos y mínimos de las coordenadas y ajustándolos a ojo.
+```{r}
+plot(x, y, xlab="Coordenada 1", ylab="Coordenada 2", main="MDS con las variables sin escalar", pch=19,     xlim=c(x.min-400,x.max+400),ylim=c(y.min-10,y.max+10)) 
+text(x, y-0.45, labels = d.names, cex=0.7, font=2)
+```
+Podemos percibir como este mds, "le hace más caso" a la variable del PIB que en este caso es la que más valor tiene al no ser una proporción como las demás.
+
+# 11
+
+## MDS con las variables
+
+```{r}
+dist.var <- as.matrix(prcomp(scale(Spain, center = TRUE, scale = TRUE))$rotation)
+
+v.names <- colnames(Spain)
+
+n <- dim(dist.var)[1]
+
+fit <- cmdscale(dist.var, eig = TRUE, k = 2); fit$points
+
+x <- fit$points[,1]; y <- fit$points[,2]
+```
+
+## Representación gráfica
+
+```{r}
+plot(x,y, pch=19, main="MDS sobre las Variables", xlab="x",ylab="y", xlim=c(-0.5,0.5),ylim=c(-0.5,0.5)) 
+text(x,y-0.04, labels=v.names,cex = 0.7, font=2)
+```
+
+# Conclusión
+
+El método de reducción de la dimensión que hemos aplicado nos ha resultado útil para ver qué comunidades son más similares en cuánto a las variables ofrecidas. Además hemos podido ver que las más potentes económicamente, como descubrimos en el estudio previo, quedaban cerca en el "mapa".
+
+
