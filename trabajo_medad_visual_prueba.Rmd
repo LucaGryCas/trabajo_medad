@@ -6,8 +6,8 @@ output:
 #' ---
 #' title: "Trabajo MEDAD"
 #' author: 
-#' "Álvaro López Pérez"
-#' "Luca Grygar Casas"
+#' "Álvaro López Pérez: alvaro.lopez.perez@udc.es"
+#' "Luca Grygar Casas: luca.grygarc@udc.es"
 #' output: pdf_document
 #' ---
 
