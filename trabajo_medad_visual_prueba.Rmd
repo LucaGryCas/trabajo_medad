@@ -1,8 +1,15 @@
 ---
-title: "Trabajo MEDAD"
-author: "Álvaro López Pérez y Luca Grygar Casas"
-output: pdf_document
+output:
+  pdf_document: default
+  html_document: default
 ---
+#' ---
+#' title: "Trabajo MEDAD"
+#' author: 
+#' "Álvaro López Pérez"
+#' "Luca Grygar Casas"
+#' output: pdf_document
+#' ---
 
 
 # Cargamos los datos
@@ -164,6 +171,8 @@ d.names <- row.names(Spain)
 plot(result, pch=19, main="MDS datos escalados, sin función de R ", xlab="x",ylab="y", xlim=c(-3,3),ylim=c(-4,3))
 text(result-c(0, 0.35), labels=d.names,cex=0.5, font=2)
 ```
+
+
 No vemos que sea necesario realizar ninguna rotación.
 
 # MDS función R
@@ -209,10 +218,12 @@ y.max <- max(y); y.min <- min(y)
 ### Representación Gráfica
 
 Creamos el gráfico reescalándolo basándonos en los máximos y mínimos de las coordenadas y ajustándolos a ojo.
+
 ```{r}
 plot(x, y, xlab="Coordenada 1", ylab="Coordenada 2", main="MDS con las variables sin escalar", pch=19,     xlim=c(x.min-400,x.max+400),ylim=c(y.min-10,y.max+10)) 
 text(x, y-0.5, labels = d.names, cex=0.6, font=2)
 ```
+
 Podemos percibir como este mds, "le hace más caso" a la variable del PIB que en este caso es la que más valor tiene al no ser una proporción como las demás.
 
 # 11
@@ -237,4 +248,4 @@ text(x,y-0.04, labels=v.names,cex = 0.7, font=2)
 
 # Conclusión
 
-El método de reducción de la dimensión que hemos aplicado nos ha resultado útil para ver qué comunidades son más similares en cuánto a las variables ofrecidas. Además hemos podido ver que las más potentes económicamente, como descubrimos en el estudio previo, quedaban cerca en el **"mapa"**.
+El método de reducción de la dimensión que hemos aplicado nos ha resultado útil para ver qué comunidades son más similares en cuánto a las variables ofrecidas. Además hemos podido ver que las más potentes económicamente, como descubrimos en el estudio previo, quedaban cerca en el **"mapa"**. 
