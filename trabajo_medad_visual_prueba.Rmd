@@ -133,6 +133,7 @@ Si utilizaramos los datos sin escalar, las distancias dependerían de las unidad
 
 ## Matriz A:
 
+La martiz A, es la matriz de distancias de los datos elevada al cuadrado y multiplicada por -1/2.
 ```{r}
 library(philentropy) 
 
@@ -144,6 +145,9 @@ cat("Matriz A: \n"); A
 
 ## Matriz de centrado
 
+La matriz de centrado o H, es una auxiliar utilizada para centrar los datos, dado que multiplicar una fila de la matriz 
+por un vector columna, daria como resultado un vector columna en que cada componente seria igual a los componente del 
+vector original menos su media.
 ```{r}
 H <- as.matrix(diag(rep((n-1)/n,length.out=n))) # En la diagonal 6/7 
 H[which(H==0)] <- -1/n # En las otras posiciones, -1/7 
@@ -152,6 +156,7 @@ cat("Matriz de centrado H: \n"); H
 
 ## Matriz B = HAH
 
+La matriz B es el resultado de aplicar una transformación sobre A, para dar una matriz semidefinida positiva.
 ```{r}
 cat("Matriz B: \n")
 (B <- H %*% A %*% H)
